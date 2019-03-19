@@ -10,16 +10,21 @@ Documentation and licence at https://github.com/liwenyip/hugo-easy-gallery/
 	{{- with (.Get "dir") -}}
 		<!-- If a directory was specified, generate figures for all of the images in the directory -->
 		{{- $files := readDir (print "/static/" .) }}
-		{{- range $files -}}
+		{{- $order := $.Get "dirSort" | default "asc" }}
+		{{- range sort $files ".Name" $order -}}
 			<!-- skip files that aren't images, or that inlcude the thumb suffix in their name -->
 			{{- $thumbext := $.Get "thumb" | default "-thumb" }}
 			{{- $isthumb := .Name | findRE ($thumbext | printf "%s\\.") }}<!-- is the current file a thumbnail image? -->
 			{{- $isimg := lower .Name | findRE "\\.(gif|jpg|jpeg|tiff|png|bmp)" }}<!-- is the current file an image? -->
 			{{- if and $isimg (not $isthumb) }}
 				{{- $caption :=  .Name | replaceRE "\\..*" "" | humanize }}<!-- humanized filename without extension -->
+				{{- if $.Get "captionDate" | default false }}
+					{{- $time := .Name | replaceRE "\\..*" "" | time }}<!-- treat filename as iso8601 date -->
+					{{- $caption = $time.Format ($.Get "captionDate") }}<!-- override $caption -->
+				{{- end }}
 				{{- $linkURL := print $baseURL ($.Get "dir") "/" .Name | absURL }}<!-- absolute URL to hi-res image -->
 				{{- $thumb := .Name | replaceRE "(\\.)" ($thumbext | printf "%s.") }}<!-- filename of thumbnail image -->
-				{{- $thumbexists := where $files "Name" $thumb }}<!-- does a thumbnail image exist? --> 
+				{{- $thumbexists := where $files "Name" $thumb }}<!-- does a thumbnail image exist? -->
 				{{- $thumbURL := print $baseURL ($.Get "dir") "/" $thumb | absURL }}<!-- absolute URL to thumbnail image -->
 				<div class="box">
 				  <figure itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
