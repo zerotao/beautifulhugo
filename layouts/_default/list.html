@@ -7,6 +7,7 @@
             {{.}}
           </div>
         {{ end }}
+        {{ $withMeta := .Params.withMeta | default true }}
         <div class="posts-list">
           {{ range .Paginator.Pages }}
             <article class="post-preview">
@@ -19,10 +20,11 @@
                   </h3>
                 {{ end }}
               </a>
-
+              {{ if $withMeta }}
               <p class="post-meta">
                 {{ partial "post_meta.html" . }}
               </p>
+              {{ end }}
               <div class="post-entry">
                 {{ if .Truncated }}
                   {{ .Summary }}
